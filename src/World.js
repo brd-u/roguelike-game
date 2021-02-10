@@ -9,6 +9,7 @@ class World {
         this.tilesize = tilesize
 
         this.entities = [new Player(0, 0, 16)]
+        this.history = ['You enter the dengeon', '---']
 
         this.worldmap = new Array(this.width)
         for (let x = 0; x < this.width; x++) {
@@ -17,6 +18,14 @@ class World {
     }
     get player() {
         return this.entities[0]
+    }
+
+    add(entity) {
+        this.entities.push(entity)
+    }
+
+    remove(entity) {
+        this.entities = this.entities.filter(e => e !== entity)
     }
 
     moveToSpace(entity) {
@@ -39,9 +48,20 @@ class World {
         )
     }
 
+    getEntityAtLocation(x, y) {
+        return this.entities.find(entity => entity.x === x && entity.y === y)
+    }
+
     movePlayer(dx, dy) {
         let tempPlayer = this.player.copyPlayer()
         tempPlayer.move(dx, dy)
+
+        let entity = this.getEntityAtLocation(tempPlayer.x, tempPlayer.y)
+        if (entity) {
+            console.log(entity)
+            entity.action('bump', this)
+            return
+        }
         if (this.isWall(tempPlayer.x, tempPlayer.y)) {
             console.log(`Way blocked at ${tempPlayer.x}:${tempPlayer.y}!`)
         } else {
@@ -86,6 +106,10 @@ class World {
         )
     }
 
+    addToHistory(history) {
+        this.history.push(history)
+        if (this.history.length > 6) this.history.shift()
+    }
 
 }
 export default World
